@@ -34,6 +34,7 @@ app.use(hotMiddleware);
 // api
 var port = 9598;
 app.use('/', express.static('./asserts/'));
+app.use('/main', express.static('./src/core/'));
 module.exports = app.listen(port, function(err) {
     if (err) {
         console.log(err);
