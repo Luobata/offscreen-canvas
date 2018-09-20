@@ -46,7 +46,7 @@ export default class Canvas {
     }
 
     private observe(ctx: CanvasRenderingContext2D): CanvasRenderingContext2D {
-        console.log(ctx);
+        console.log(this.offCtx);
         // tslint:disable
         for (const i in ctx) {
             this.hack(i, ctx);
@@ -57,13 +57,33 @@ export default class Canvas {
     }
 
     private hack(key: string, ctx: CanvasRenderingContext2D): void {
-        console.log(key, typeof ctx[key]);
         const keyType: string = typeof ctx[key];
         const valueKey: string[] = ['string', 'nubmer', 'boolean'];
         const funKey: string[] = ['function'];
 
         if (valueKey.indexOf(keyType) !== -1) {
             // hack value
+            // tslint:disable
+            Object.defineProperty(this.offCtx, key, {
+                enumerable: false,
+                configurable: false,
+                get() {
+                    return ctx[keyType];
+                },
+                set: function(newValue: any) {
+                    console.log(newValue);
+                    // this.offCtx[key] = newValue;
+                    ctx[key] = newValue;
+                },
+            });
+            // tslint:enable
+        }
+
+        if (funKey.indexOf(keyType) !== -1) {
+            // const fun: Function = this.offCtx[keyType];
+            this.offCtx[key] = (...args: any[]) => {
+                ctx[key](...args);
+            };
         }
     }
 }
