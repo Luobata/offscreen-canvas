@@ -3,6 +3,7 @@
  */
 
 // tslint:disable no-any no-safe-any
+
 // tslint:disable-next-line
 // declare interface HTMLCanvasElement {
 //     transferControlToOffscreen: any;
@@ -18,9 +19,14 @@ export default class Canvas {
 
     private offCanvas: HTMLCanvasElement;
     private offCtx: CanvasRenderingContext2D;
+    private pixelRatio: number;
 
     constructor(canvas: HTMLCanvasElement) {
         this.canvasInit(canvas);
+    }
+
+    public reset(): void {
+        this.canvas.height = this.canvas.height;
     }
 
     private canvasInit(canvas: HTMLCanvasElement): void {
@@ -35,6 +41,7 @@ export default class Canvas {
         //     this.ctx = this.canvas.getContext('2d');
         // } else {
         this.canvas = canvas;
+        this.pixelRatio = window.devicePixelRatio;
         this.offScreen();
         this.ctx = this.observe(this.canvas.getContext('2d'));
         // }
@@ -81,7 +88,8 @@ export default class Canvas {
 
         if (funKey.indexOf(keyType) !== -1) {
             // const fun: Function = this.offCtx[keyType];
-            this.offCtx[key] = (...args: any[]) => {
+            this.offCtx[key] = <T>(...args: T[]): void => {
+                // TODO 不直接映射，修改内容，然后getImageData, putImageData
                 ctx[key](...args);
             };
         }
