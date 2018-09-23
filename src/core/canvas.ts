@@ -19,6 +19,8 @@ export default class Canvas {
 
     private offCanvas: HTMLCanvasElement;
     private offCtx: CanvasRenderingContext2D;
+    private backCanvas: HTMLCanvasElement;
+    private backCtx: CanvasRenderingContext2D;
     private pixelRatio: number;
 
     constructor(canvas: HTMLCanvasElement) {
@@ -50,6 +52,9 @@ export default class Canvas {
     private offScreen(): void {
         this.offCanvas = document.createElement('canvas');
         this.offCtx = this.offCanvas.getContext('2d');
+
+        this.backCanvas = document.createElement('canvas');
+        this.backCtx = this.backCanvas.getContext('2d');
     }
 
     private observe(ctx: CanvasRenderingContext2D): CanvasRenderingContext2D {
@@ -87,11 +92,24 @@ export default class Canvas {
         }
 
         if (funKey.indexOf(keyType) !== -1) {
-            // const fun: Function = this.offCtx[keyType];
             this.offCtx[key] = <T>(...args: T[]): void => {
                 // TODO 不直接映射，修改内容，然后getImageData, putImageData
-                ctx[key](...args);
+                this.backCtx[key](...args);
+                this.sync(ctx);
+                // ctx[key](...args);
             };
         }
+    }
+
+    private sync(ctx: CanvasRenderingContext2D): void {
+        const data: ImageData = this.backCtx.getImageData(
+            0,
+            0,
+            this.backCanvas.width * this.pixelRatio,
+            this.backCanvas.height * this.pixelRatio,
+        );
+        console.log(data);
+
+        ctx.putImageData(data, 0, 0);
     }
 }
